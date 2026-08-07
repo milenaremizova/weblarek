@@ -1,9 +1,4 @@
-interface Buyer {
-  payment: "card" | "cash";
-  address: string;
-  email: string;
-  phone: string;
-}
+import { Buyer } from "../../../types";
 
 export class CustomerModel {
   private data: Buyer | null = null;
