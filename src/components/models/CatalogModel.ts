@@ -1,14 +1,10 @@
-import { Product } from "../../../types";
+import { Product } from "../../types";
 
 export class CatalogModel {
   private products: Product[] = [];
   private selectedProductId: string | null = null;
 
-  constructor(initialProducts?: Product[]) {
-    if (initialProducts) {
-      this.products = initialProducts;
-    }
-  }
+  constructor() {}
 
   setProducts(newProducts: Product[]): void {
     this.products = newProducts;
@@ -27,7 +23,6 @@ export class CatalogModel {
 
     if (product) {
       this.selectedProductId = id;
-    } else {
     }
   }
 

@@ -1,13 +1,9 @@
-import { Product } from "../../../types";
+import { Product } from "../../types";
 
 export class CartModel {
   private items: Product[] = [];
 
-  constructor(initialItems?: Product[]) {
-    if (initialItems) {
-      this.items = initialItems;
-    }
-  }
+  constructor() {}
 
   getItems(): Product[] {
     return this.items;
