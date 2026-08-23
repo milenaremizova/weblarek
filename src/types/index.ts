@@ -42,3 +42,17 @@ export interface CatalogResponse {
   items: Product[];
   total: number;
 }
+
+export interface IHeader {
+  counter: number;
+}
+
+export interface IGallery {}
+
+export interface ICardData {
+  description: string;
+  image: string;
+  title: string;
+  price: number;
+  category: string;
+}
