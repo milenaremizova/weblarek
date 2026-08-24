@@ -1,4 +1,5 @@
-import { IBuyer, TPayment, TBuyerErrors } from "../../types";
+import { IBuyer, TBuyerErrors } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class CustomerModel {
   private data: IBuyer = {
@@ -8,10 +9,9 @@ export class CustomerModel {
     phone: "",
   };
 
-  constructor() {}
+  constructor(private events: IEvents) {}
 
   updateData(data: Partial<IBuyer>): void {
-    // Обновляем только те поля, которые передали в объекте
     if (data.payment !== undefined) {
       this.data.payment = data.payment;
     }
@@ -24,6 +24,8 @@ export class CustomerModel {
     if (data.phone !== undefined) {
       this.data.phone = data.phone;
     }
+
+    this.events.emit("customer:changed", { data: this.data });
   }
 
   getData(): IBuyer {
@@ -37,12 +39,10 @@ export class CustomerModel {
       email: "",
       phone: "",
     };
+
+    this.events.emit("customer:changed", { data: this.data });
   }
 
-  /**
-   Задание: "Поле является валидным, если оно не пустое".
-   Возвращаем объект ошибок: { поле: "текст ошибки" }
-   **/
   validate(): TBuyerErrors {
     const errors: TBuyerErrors = {};
 

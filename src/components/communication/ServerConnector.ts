@@ -1,6 +1,5 @@
 import { IApi } from "../../types/index";
 import {
-  Product,
   OrderRequest,
   OrderResponse,
   CatalogResponse,

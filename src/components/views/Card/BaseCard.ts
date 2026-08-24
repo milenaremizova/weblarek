@@ -3,89 +3,58 @@ import { categoryMap } from "../../../utils/constants";
 import { IEvents } from "../../base/Events";
 import { ICardData } from "../../../types";
 
-
-export class BaseCard extends Component<ICardData> {
+// выбран абстрактный класс, так как от него нельзя создать объект напрямую, потому что используется как база для карточек
+export abstract class BaseCard extends Component<ICardData> {
   protected titleEl: HTMLElement | null;
   protected priceEl: HTMLElement | null;
   protected categoryEl: HTMLElement | null;
   protected imgEl: HTMLImageElement | null;
   protected descEl: HTMLElement | null;
-
   protected events: IEvents;
-  protected data: ICardData;
+  protected cardId: string = "";
 
-  constructor(events: IEvents, container: HTMLElement, data: ICardData) {
+  constructor(events: IEvents, container: HTMLElement) {
     super(container);
     this.events = events;
-    this.data = data;
 
     this.titleEl = container.querySelector(".card__title");
     this.priceEl = container.querySelector(".card__price");
     this.categoryEl = container.querySelector(".card__category");
-    this.imgEl = container.querySelector(
-      ".card__image",
-    ) as HTMLImageElement | null;
+    this.imgEl = container.querySelector(".card__image");
     this.descEl = container.querySelector(".card__text");
 
-    // слушатель события в конструкторе
     container.addEventListener("click", () => {
-      this.events.emit("card:click", this.data);
+      this.events.emit("card:click", { id: this.cardId });
     });
   }
-  render(): HTMLElement {
-    const container = this.container;
 
-    // Заголовок
-    if (this.titleEl) {
-      this.titleEl.textContent = this.data.title;
-    }
+  set id(value: string) {
+    this.cardId = value;
+  }
 
-    // Цена
+  set title(value: string) {
+    if (this.titleEl) this.titleEl.textContent = value;
+  }
+
+  set price(value: number | null) {
     if (this.priceEl) {
-      this.priceEl.textContent = `${this.data.price} синапсов`;
+      this.priceEl.textContent = value ? `${value} синапсов` : "Бесценно";
     }
+  }
 
-    if (this.categoryEl) {
-      this.categoryEl.textContent = this.data.category;
+  set category(value: string) {
+    if (!this.categoryEl) return;
+    this.categoryEl.textContent = value;
+    this.categoryEl.className = "card__category";
+    const modifier = categoryMap[value as keyof typeof categoryMap];
+    if (modifier) this.categoryEl.classList.add(modifier);
+  }
 
-      // очистка всех модификаторов чтоб не было проблем при переиспользовании
-      this.categoryEl.classList.remove(
-        "card__category_soft",
-        "card__category_hard",
-        "card__category_button",
-        "card__category_additional",
-        "card__category_other",
-      );
+  set image(value: string) {
+    if (this.imgEl) this.setImage(this.imgEl, value, this.titleEl?.textContent ?? "");
+  }
 
-      const modifierClass =
-        categoryMap[this.data.category as keyof typeof categoryMap];
-
-      // 4. Добавляем класс только если он реально существует в мапе
-      if (modifierClass) {
-        this.categoryEl.classList.add(modifierClass);
-      } else {
-        // Опционально: можно вывести предупреждение в консоль, если категория неизвестна
-        console.warn(
-          `Неизвестная категория "${this.data.category}". Класс не назначен.`,
-        );
-      }
-    }
-
-    // --- Картинка ---
-    if (this.imgEl) {
-      // Используем готовый метод из базового класса Component
-      this.setImage(this.imgEl, this.data.image, this.data.title);
-    }
-    if (this.imgEl) {
-  console.log('Путь к картинке:', this.data.image); // <--- Добавь это
-  this.setImage(this.imgEl, this.data.image, this.data.title);
-} 
-
-    // --- Описание ---
-    if (this.descEl) {
-      this.descEl.textContent = this.data.description;
-    }
-
-    return container;
+  set description(value: string) {
+    if (this.descEl) this.descEl.textContent = value;
   }
 }

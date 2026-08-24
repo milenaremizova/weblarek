@@ -32,10 +32,8 @@ export class Gallery extends Component<IGallery> {
     }
 
     this._products.forEach((product) => {
-      const card = new CatalogCard(this.events, product);
-
-      const renderedCard = card.render();
-
+      const card = new CatalogCard(this.events);
+      const renderedCard = card.render(product); // Object.assign вызовет сеттеры id/title/price/category/image
       this.catalogElement.appendChild(renderedCard);
     });
 
