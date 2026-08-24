@@ -23,7 +23,7 @@ export class ModulProductCard extends BaseCard {
   set buttonState(state: CardButtonState) {
     switch (state) {
       case 'buy':
-        this.buyButton.textContent = 'В корзину';
+        this.buyButton.textContent = 'Купить';
         this.buyButton.disabled = false;
         break;
       case 'remove':
