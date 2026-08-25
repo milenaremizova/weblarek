@@ -1,6 +1,6 @@
 // src/api/LarekApi.ts
-import { CDN_URL } from "../../utils/constants";
-import { apiProducts } from "../../utils/data";
+import { CDN_URL } from "./constants";
+import { apiProducts } from "./data";
 
 export class LarekApi {
   /**

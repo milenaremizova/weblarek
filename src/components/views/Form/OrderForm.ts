@@ -9,26 +9,20 @@ export class OrderForm extends BaseForm<IOrderFormData> {
   protected cashButton: HTMLButtonElement;
   protected addressInput: HTMLInputElement;
 
-  constructor(events: IEvents) {
-    const template = document.getElementById("order") as HTMLTemplateElement;
-    if (!template) throw new Error("Шаблон order не найден в HTML");
-    const clone = template.content.firstElementChild!.cloneNode(
-      true,
-    ) as HTMLElement;
-
-    super(clone, events);
+  constructor(container: HTMLElement, events: IEvents) {
+    super(container, events);
 
     this.cardButton = ensureElement<HTMLButtonElement>(
       'button[name="card"]',
-      clone,
+      container,
     );
     this.cashButton = ensureElement<HTMLButtonElement>(
       'button[name="cash"]',
-      clone,
+      container,
     );
     this.addressInput = ensureElement<HTMLInputElement>(
       'input[name="address"]',
-      clone,
+      container,
     );
 
     this.cardButton.addEventListener("click", () => {

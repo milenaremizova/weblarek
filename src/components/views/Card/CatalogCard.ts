@@ -1,17 +1,31 @@
 import { BaseCard } from "./BaseCard";
-import { IEvents } from "../../base/Events";
+import { categoryMap } from "../../../utils/constants";
+import { ICardImage } from "../../../types";
 
+// в класс добавлены поля картинки и категории, так как это актуально только для карточки каталога
+// исправлен обработчик
 export class CatalogCard extends BaseCard {
-  constructor(events: IEvents) {
-    const template = document.getElementById(
-      "card-catalog",
-    ) as HTMLTemplateElement;
+  protected imgEl: HTMLImageElement | null;
+  protected categoryEl: HTMLElement | null;
 
-    if (!template) {
-      throw new Error("Шаблон card-catalog не найден в HTML");
-    }
+  constructor(container: HTMLElement, actions: { onClick: () => void }) {
+    super(container);
 
-    const clone = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
-    super(events, clone);
+    this.imgEl = container.querySelector(".card__image");
+    this.categoryEl = container.querySelector(".card__category");
+
+    container.addEventListener("click", actions.onClick);
+  }
+
+  set image(value: ICardImage) {
+    if (this.imgEl) this.setImage(this.imgEl, value.src, value.alt);
+  }
+
+  set category(value: string) {
+    if (!this.categoryEl) return;
+    this.categoryEl.textContent = value;
+    this.categoryEl.className = "card__category";
+    const modifier = categoryMap[value as keyof typeof categoryMap];
+    if (modifier) this.categoryEl.classList.add(modifier);
   }
 }

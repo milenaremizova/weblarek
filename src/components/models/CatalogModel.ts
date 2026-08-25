@@ -3,13 +3,13 @@ import { IEvents } from "../base/Events";
 
 export class CatalogModel {
   private products: Product[] = [];
-  private selectedProductId: string | null = null;
+  private selectedProduct: Product | null = null;
 
   constructor(private events: IEvents) {}
 
   setProducts(newProducts: Product[]): void {
     this.products = newProducts;
-    this.events.emit("catalog:changed", { products: this.products });
+    this.events.emit("catalog:changed");
   }
 
   getProducts(): Product[] {
@@ -24,16 +24,12 @@ export class CatalogModel {
     const product = this.findProductById(id);
 
     if (product) {
-      this.selectedProductId = id;
-      this.events.emit("preview:changed", { product });
+      this.selectedProduct = product;
+      this.events.emit("preview:changed");
     }
   }
 
   getSelectedProduct(): Product | null {
-    if (!this.selectedProductId) {
-      return null;
-    }
-    const product = this.findProductById(this.selectedProductId);
-    return product ?? null;
+    return this.selectedProduct;
   }
 }

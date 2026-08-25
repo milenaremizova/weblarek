@@ -3,7 +3,7 @@ import "./scss/styles.scss";
 import { EventEmitter } from "./components/base/Events";
 import { Api } from "./components/base/Api";
 import { API_URL } from "./utils/constants";
-import { LarekApi } from "./components/base/LarekApi";
+import { LarekApi } from "./utils/LarekApi";
 import { ServerConnector } from "./components/communication/ServerConnector";
 
 import { CatalogModel } from "./components/models/CatalogModel";
@@ -15,45 +15,49 @@ import { Gallery } from "./components/views/Gallery";
 import { Modal } from "./components/views/Modal";
 import { Basket } from "./components/views/Basket";
 import { Success } from "./components/views/Success";
-import { OrderForm } from "./components/views/Form/OrderForm";
-import { ContactsForm } from "./components/views/Form/ContactsForm";
+import { ModulProductCard } from "./components/views/Card/ModulProductCard";
 
 import { AppPresenter } from "./components/Presenter";
-import { ensureElement } from "./utils/utils";
-
+import { ensureElement, cloneTemplate } from "./utils/utils";
 
 const events = new EventEmitter();
 const api = new Api(API_URL);
 const server = new ServerConnector(api);
 const larekApi = new LarekApi();
 
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>("#card-catalog");
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>("#card-preview");
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>("#card-basket");
+const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
+const successTemplate = ensureElement<HTMLTemplateElement>("#success");
+const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
+const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
+
 // модели
 const catalogModel = new CatalogModel(events);
 const cartModel = new CartModel(events);
 const customerModel = new CustomerModel(events);
 
-// представления
-const header = new Header(events, ensureElement<HTMLElement>('.header'));
-const gallery = new Gallery(events, ensureElement<HTMLElement>('.gallery'));
-const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
-
-const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const basket = new Basket(
-  basketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement,
-  events,
+const previewCard = new ModulProductCard(
+  cloneTemplate<HTMLElement>(cardPreviewTemplate),
+  {
+    onBuyClick: () => events.emit("card:toBasket"),
+  },
 );
 
-const orderForm = new OrderForm(events);
-const contactsForm = new ContactsForm(events);
-
-const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+// представления
+const header = new Header(events, ensureElement<HTMLElement>(".header"));
+const gallery = new Gallery(ensureElement<HTMLElement>(".gallery"));
+const modal = new Modal(ensureElement<HTMLElement>("#modal-container"), events);
+const basket = new Basket(cloneTemplate<HTMLElement>(basketTemplate), events);
 const success = new Success(
-  successTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement,
+  cloneTemplate<HTMLElement>(successTemplate),
   events,
 );
 
 // презентер
-new AppPresenter({
+const appPresenter = new AppPresenter({
+  larekApi,
   events,
   catalogModel,
   cartModel,
@@ -63,20 +67,13 @@ new AppPresenter({
   gallery,
   modal,
   basket,
-  orderForm,
-  contactsForm,
+  orderTemplate,
+  contactsTemplate,
   success,
+  cardCatalogTemplate,
+  previewCard,
+  cardBasketTemplate,
 });
 
-// звгрузка каталога
-async function init() {
-  try {
-    const response = await server.fetchCatalog();
-    const preparedItems = larekApi.prepareProducts(response);
-    catalogModel.setProducts(preparedItems);
-  } catch (error) {
-    console.error('Ошибка при загрузке каталога:', error);
-  }
-}
-
-init();
+// инициализация приложения
+appPresenter.init();

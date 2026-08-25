@@ -1,6 +1,6 @@
-
 // добавлены import type для описания типа зависимостей презентера. если бы я импортировала обычным импортом, то получилась бы циклическая зависимость. ее удалось избежать
 // import type нужен только для проверки типов, полностью удаляется компилятором при сборке
+import type { LarekApi } from "../utils/LarekApi";
 import type { IEvents } from "../components/base/Events";
 import type { CatalogModel } from "../components/models/CatalogModel";
 import type { CartModel } from "../components/models/CartModel";
@@ -10,9 +10,8 @@ import type { Header } from "../components/views/Header";
 import type { Gallery } from "../components/views/Gallery";
 import type { Modal } from "../components/views/Modal";
 import type { Basket } from "../components/views/Basket";
-import type { OrderForm } from "../components/views/Form/OrderForm";
-import type { ContactsForm } from "../components/views/Form/ContactsForm";
 import type { Success } from "../components/views/Success";
+import type { ModulProductCard } from "../components/views/Card/ModulProductCard";
 export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
 export interface IApi {
@@ -64,17 +63,25 @@ export interface IHeader {
 
 export interface IGallery {}
 
-export type CardButtonState = "buy" | "remove" | "disabled";
+export interface IButtonState {
+  text: string;
+  disabled: boolean;
+}
+
+export interface ICardImage {
+  src: string;
+  alt: string;
+}
 
 export interface ICardData {
   id: string;
   description: string;
-  image: string;
+  image: ICardImage;
   title: string;
   price: number | null;
   category: string;
   index?: number;
-  buttonState?: CardButtonState;
+  buttonState?: IButtonState;
 }
 
 export interface IFormState {
@@ -82,7 +89,7 @@ export interface IFormState {
   errors: string;
 }
 
- export interface IOrderFormData {
+export interface IOrderFormData {
   payment: TPayment | null;
   address: string;
 }
@@ -107,6 +114,7 @@ export interface ISuccessData {
 }
 
 export interface IPresenter {
+  larekApi: LarekApi;
   events: IEvents;
   catalogModel: CatalogModel;
   cartModel: CartModel;
@@ -116,7 +124,10 @@ export interface IPresenter {
   gallery: Gallery;
   modal: Modal;
   basket: Basket;
-  orderForm: OrderForm;
-  contactsForm: ContactsForm;
+  orderTemplate: HTMLTemplateElement;
+  contactsTemplate: HTMLTemplateElement;
   success: Success;
+  cardCatalogTemplate: HTMLTemplateElement;
+  cardBasketTemplate: HTMLTemplateElement;
+  previewCard: ModulProductCard;
 }

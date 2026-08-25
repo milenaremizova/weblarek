@@ -25,7 +25,7 @@ export class CustomerModel {
       this.data.phone = data.phone;
     }
 
-    this.events.emit("customer:changed", { data: this.data });
+    this.events.emit("customer:changed");
   }
 
   getData(): IBuyer {
@@ -40,7 +40,7 @@ export class CustomerModel {
       phone: "",
     };
 
-    this.events.emit("customer:changed", { data: this.data });
+    this.events.emit("customer:changed");
   }
 
   validate(): TBuyerErrors {
