@@ -33,10 +33,8 @@ export class AppPresenter {
   private gallery: Gallery;
   private modal: Modal;
   private basket: Basket;
-  private orderTemplate: HTMLTemplateElement;
-  private contactsTemplate: HTMLTemplateElement;
-  private currentOrderForm: OrderForm | null = null;
-  private currentContactsForm: ContactsForm | null = null;
+  private orderForm: OrderForm;
+  private contactsForm: ContactsForm;
   private success: Success;
   private cardCatalogTemplate: HTMLTemplateElement;
   private previewCard: ModulProductCard;
@@ -54,8 +52,8 @@ export class AppPresenter {
     this.gallery = deps.gallery;
     this.modal = deps.modal;
     this.basket = deps.basket;
-    this.orderTemplate = deps.orderTemplate;
-    this.contactsTemplate = deps.contactsTemplate;
+    this.orderForm = deps.orderForm;
+    this.contactsForm = deps.contactsForm;
     this.success = deps.success;
     this.cardCatalogTemplate = deps.cardCatalogTemplate;
     this.cardBasketTemplate = deps.cardBasketTemplate;
@@ -68,6 +66,7 @@ export class AppPresenter {
   private subscribe(): void {
     // события моделей
     this.events.on("catalog:changed", this.handleCatalogChanged.bind(this));
+    this.events.on("card:remove", this.handleCardRemove.bind(this));
     this.events.on("preview:changed", this.handlePreviewChanged.bind(this));
     this.events.on("basket:changed", this.handleBasketChanged.bind(this));
     this.events.on("customer:changed", this.handleCustomerChanged.bind(this));
@@ -89,14 +88,14 @@ export class AppPresenter {
 
   // вспомогательные методы
   async init(): Promise<void> {
-  try {
-    const response = await this.server.fetchCatalog();
-    const preparedItems = this.larekApi.prepareProducts(response);
-    this.catalogModel.setProducts(preparedItems);
-  } catch (error) {
-    console.error("Ошибка при загрузке каталога:", error);
+    try {
+      const response = await this.server.fetchCatalog();
+      const preparedItems = this.larekApi.prepareProducts(response);
+      this.catalogModel.setProducts(preparedItems);
+    } catch (error) {
+      console.error("Ошибка при загрузке каталога:", error);
+    }
   }
-}
 
   private renderGallery(): void {
     const items = this.catalogModel.getProducts().map((product) => {
@@ -123,7 +122,8 @@ export class AppPresenter {
       const container = cloneTemplate<HTMLElement>(this.cardBasketTemplate);
 
       const card = new CartItemCard(container, {
-        onDeleteClick: () => this.cartModel.removeItem(product.id),
+        onDeleteClick: () =>
+          this.events.emit("card:remove", { id: product.id }),
       });
 
       return card.render({
@@ -167,27 +167,10 @@ export class AppPresenter {
   }
 
   private renderOrderForm(): HTMLElement {
-    const container = cloneTemplate<HTMLElement>(this.orderTemplate);
-    this.currentOrderForm = new OrderForm(container, this.events);
-
     const buyer = this.customerModel.getData();
     const errors = this.customerModel.validate();
 
-    return this.currentOrderForm.render({
-      payment: buyer.payment,
-      address: buyer.address,
-      valid: !errors.payment && !errors.address,
-      errors: [errors.payment, errors.address].filter(Boolean).join(". "),
-    });
-  }
-
-  private updateOrderForm(): void {
-    if (!this.currentOrderForm) return;
-
-    const buyer = this.customerModel.getData();
-    const errors = this.customerModel.validate();
-
-    this.currentOrderForm.render({
+    return this.orderForm.render({
       payment: buyer.payment,
       address: buyer.address,
       valid: !errors.payment && !errors.address,
@@ -196,27 +179,10 @@ export class AppPresenter {
   }
 
   private renderContactsForm(): HTMLElement {
-    const container = cloneTemplate<HTMLElement>(this.contactsTemplate);
-    this.currentContactsForm = new ContactsForm(container, this.events);
-
     const buyer = this.customerModel.getData();
     const errors = this.customerModel.validate();
 
-    return this.currentContactsForm.render({
-      email: buyer.email,
-      phone: buyer.phone,
-      valid: !errors.email && !errors.phone,
-      errors: [errors.email, errors.phone].filter(Boolean).join(". "),
-    });
-  }
-
-  private updateContactsForm(): void {
-    if (!this.currentContactsForm) return;
-
-    const buyer = this.customerModel.getData();
-    const errors = this.customerModel.validate();
-
-    this.currentContactsForm.render({
+    return this.contactsForm.render({
       email: buyer.email,
       phone: buyer.phone,
       valid: !errors.email && !errors.phone,
@@ -239,14 +205,22 @@ export class AppPresenter {
     this.renderBasket();
   }
 
-  private handleCustomerChanged(): void {
-    this.updateOrderForm();
-    this.updateContactsForm();
-  }
-
   // обработчики, views
   private handleCardClick(data: { id: string }): void {
     this.catalogModel.setSelectedProduct(data.id);
+  }
+
+  private handleCardRemove(data: { id: string }): void {
+    this.cartModel.removeItem(data.id);
+  }
+
+  private handleCustomerFieldChange(data: {
+    field: string;
+    value: string;
+  }): void {
+    this.customerModel.updateData({
+      [data.field]: data.value,
+    } as Partial<IBuyer>);
   }
 
   private handleToBasket(): void {
@@ -271,13 +245,9 @@ export class AppPresenter {
     this.modal.open();
   }
 
-  private handleCustomerFieldChange(data: {
-    field: string;
-    value: string;
-  }): void {
-    this.customerModel.updateData({
-      [data.field]: data.value,
-    } as Partial<IBuyer>);
+  private handleCustomerChanged(): void {
+    this.renderOrderForm();
+    this.renderContactsForm();
   }
 
   private handleOrderSubmit(): void {

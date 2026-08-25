@@ -16,6 +16,8 @@ import { Modal } from "./components/views/Modal";
 import { Basket } from "./components/views/Basket";
 import { Success } from "./components/views/Success";
 import { ModulProductCard } from "./components/views/Card/ModulProductCard";
+import { OrderForm } from "./components/views/Form/OrderForm";
+import { ContactsForm } from "./components/views/Form/ContactsForm";
 
 import { AppPresenter } from "./components/Presenter";
 import { ensureElement, cloneTemplate } from "./utils/utils";
@@ -32,6 +34,15 @@ const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
 const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
+
+const orderForm = new OrderForm(
+  cloneTemplate<HTMLElement>(orderTemplate),
+  events,
+);
+const contactsForm = new ContactsForm(
+  cloneTemplate<HTMLElement>(contactsTemplate),
+  events,
+);
 
 // модели
 const catalogModel = new CatalogModel(events);
@@ -67,8 +78,8 @@ const appPresenter = new AppPresenter({
   gallery,
   modal,
   basket,
-  orderTemplate,
-  contactsTemplate,
+  orderForm,
+  contactsForm,
   success,
   cardCatalogTemplate,
   previewCard,
