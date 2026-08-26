@@ -5,6 +5,10 @@
   @include mixins.container;
   @include mixins.grid(600px, 24px);
 
+  @media (max-width: $tablet) {
+    @include mixins.grid(280px, 16px)
+  }
+
   &__item {
     border: none;
     border-radius: $defaultBorderRadius;
@@ -15,3 +19,4 @@
     }
   }
 }
+

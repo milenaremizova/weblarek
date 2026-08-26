@@ -6,6 +6,7 @@ import { IModalData } from "../../types";
 export class Modal extends Component<IModalData> {
   protected closeButton: HTMLButtonElement;
   protected contentContainer: HTMLElement;
+  protected containerElement: HTMLElement;
   protected events: IEvents;
 
   constructor(container: HTMLElement, events: IEvents) {
@@ -20,6 +21,10 @@ export class Modal extends Component<IModalData> {
       ".modal__content",
       container,
     );
+    this.containerElement = ensureElement<HTMLElement>(
+      ".modal__container",
+      container,
+    );
 
     this.closeButton.addEventListener("click", () => this.close());
     this.container.addEventListener("click", (e) => {
@@ -29,6 +34,13 @@ export class Modal extends Component<IModalData> {
 
   set content(value: HTMLElement) {
     this.contentContainer.replaceChildren(value);
+  }
+
+  set size(value: "default" | "preview") {
+    this.containerElement.classList.toggle(
+      "modal__container_preview",
+      value === "preview",
+    );
   }
 
   open(): void {

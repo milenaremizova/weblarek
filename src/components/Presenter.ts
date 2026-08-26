@@ -152,7 +152,7 @@ export class AppPresenter {
       buttonState,
     });
 
-    this.modal.render({ content: rendered });
+    this.modal.render({ content: rendered, size: "preview" });
     this.modal.open();
   }
 
@@ -236,12 +236,12 @@ export class AppPresenter {
   }
 
   private handleBasketOpen(): void {
-    this.modal.render({ content: this.renderBasket() });
+    this.modal.render({ content: this.renderBasket(), size: "default" });
     this.modal.open();
   }
 
   private handleOrderOpen(): void {
-    this.modal.render({ content: this.renderOrderForm() });
+    this.modal.render({ content: this.renderOrderForm(), size: "default" });
     this.modal.open();
   }
 
@@ -251,9 +251,8 @@ export class AppPresenter {
   }
 
   private handleOrderSubmit(): void {
-    this.modal.render({ content: this.renderContactsForm() });
+    this.modal.render({ content: this.renderContactsForm(), size: "default" });
   }
-
   private handleContactsSubmit(): void {
     const buyer = this.customerModel.getData();
     const orderPayload: OrderRequest = {
@@ -267,6 +266,7 @@ export class AppPresenter {
       .then((response) => {
         this.modal.render({
           content: this.success.render({ total: response.total }),
+          size: "default",
         });
         this.cartModel.clear();
         this.customerModel.clear();

@@ -133,3 +133,8 @@ export interface IPresenter {
   cardBasketTemplate: HTMLTemplateElement;
   previewCard: ModulProductCard;
 }
+
+export interface IModalData {
+  content: HTMLElement;
+  size?: "default" | "preview";
+}
